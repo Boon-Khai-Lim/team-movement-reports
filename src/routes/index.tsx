@@ -34,7 +34,7 @@ export default function Home() {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
   const [date, setDate] = useState('')
-  const [activeTab, setActiveTab] = useState<'reports' | 'emart' | 'bookinout'>('reports')
+  const [activeTab, setActiveTab] = useState<'reports' | 'emart' | 'bookinout' | 'appointment'>('reports')
   const [emartTemplate, setEmartTemplate] = useState('Morning')
   const [emartGreeting, setEmartGreeting] = useState('Good Morning Trainers,')
   const [emartSelected, setEmartSelected] = useState<string[]>([])
@@ -47,6 +47,15 @@ export default function Home() {
   const [bookLocation, setBookLocation] = useState('AI BUILDING')
   const [bookTime, setBookTime] = useState('')
   const [bookMessage, setBookMessage] = useState('')
+  const [appointmentTemplate, setAppointmentTemplate] = useState('Morning')
+  const [appointmentGreeting, setAppointmentGreeting] = useState('Good Morning Trainers,')
+  const [appointmentSelected, setAppointmentSelected] = useState('')
+  const [appointmentSearch, setAppointmentSearch] = useState('')
+  const [appointmentReference, setAppointmentReference] = useState('')
+  const [appointmentLocation, setAppointmentLocation] = useState('')
+  const [appointmentDate, setAppointmentDate] = useState('')
+  const [appointmentTime, setAppointmentTime] = useState('')
+  const [appointmentMessage, setAppointmentMessage] = useState('')
   async function refresh() {
     setLoading(true); setLoadError(false)
     try { setPeople(await getPersonnel()) } catch { setLoadError(true) } finally { setLoading(false) }
@@ -91,8 +100,35 @@ export default function Home() {
     <main className="workspace">
       <div className="breadcrumb">Workspace <ChevronRight size={13}/> <span>Movement reports</span></div>
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Movement reports<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
-      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "bookinout" ? "active" : ""} onClick={() => setActiveTab("bookinout")}><Clock3 size={17}/>Book in and out reports</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
-      {activeTab === "bookinout" ? <div className="report-grid">
+      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "bookinout" ? "active" : ""} onClick={() => setActiveTab("bookinout")}><Clock3 size={17}/>Book in and out reports</button><button type="button" className={activeTab === "appointment" ? "active" : ""} onClick={() => setActiveTab("appointment")}><FileText size={17}/>Appointment</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
+      {activeTab === "appointment" ? <div className="report-grid">
+        <section className="panel form-panel">
+          <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Requesting for Appointments</h2><p>Prepare an appointment approval request for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
+          <div className="form-section">
+            <div className="section-label"><span>01</span>Appointment details</div>
+            <Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={appointmentTemplate} onChange={e => { setAppointmentTemplate(e.target.value); setAppointmentGreeting("Good " + e.target.value + " Trainers,") }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>
+            <Field label="Greeting"><input value={appointmentGreeting} maxLength={200} onChange={e => setAppointmentGreeting(e.target.value)}/></Field>
+            <div className="two-col"><Field label="Appointment date"><input type="date" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)}/></Field><Field label="Appointment time"><div className="input-icon"><Clock3 size={16}/><input inputMode="numeric" maxLength={4} placeholder="e.g. 1430" value={appointmentTime} onChange={e => setAppointmentTime(e.target.value.replace(/\D/g,''))}/><span className="input-suffix">HRS</span></div></Field></div>
+            <Field label="Clinic / hospital / location"><input value={appointmentLocation} onChange={e => setAppointmentLocation(e.target.value)} placeholder="Enter clinic, hospital, or location"/></Field>
+            <Field label="Second row information (e.g. TXXXXXXXX)"><input value={appointmentReference} onChange={e => setAppointmentReference(e.target.value)} placeholder="Enter identification / reference number"/></Field>
+          </div>
+          <div className="form-section">
+            <div className="section-label"><span>02</span>Cadet selection</div>
+            <div className="personnel-picker">
+              <div className="picker-label"><span>Cadet requesting appointment<b>{appointmentSelected ? '1 selected' : 'None selected'}</b></span><button type="button" onClick={() => setAppointmentSelected('')}>Clear</button></div>
+              <div className="search-input"><Search size={16}/><input aria-label="Search cadet for appointment" placeholder="Search by name, unit, or rank…" value={appointmentSearch} onChange={e => setAppointmentSearch(e.target.value)}/></div>
+              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(appointmentSearch.toLowerCase())).length ? people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(appointmentSearch.toLowerCase())).map(p => <label className={"person-row "+(appointmentSelected === p.id ? "checked" : "")} key={p.id}><input type="radio" name="appointment-cadet" checked={appointmentSelected === p.id} onChange={() => setAppointmentSelected(p.id)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
+              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : people.length+" personnel in your unit"}<span>{appointmentSelected ? '1 selected' : '0 selected'}</span></div>
+            </div>
+            <button type="button" className="btn primary generate" disabled={!appointmentSelected || !appointmentGreeting.trim() || !appointmentReference.trim() || !appointmentLocation.trim() || !appointmentDate || !/^([01]\d|2[0-3])[0-5]\d$/.test(appointmentTime) || loading || loadError} onClick={() => { const p=people.find(person => person.id===appointmentSelected); if(!p) return; const name=p.unit+" "+p.rank+" "+p.name; const dateText=new Date(appointmentDate+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"}); const message=appointmentGreeting.trim()+" "+name+" is requesting approval for an appointment @ "+appointmentLocation.trim()+" on "+dateText+", "+appointmentTime+" HRS.\n\n1. "+name+"\n2. "+appointmentReference.trim()+"\n3. APPOINTMENT @ "+appointmentLocation.trim()+"\n\nThank you Trainers."; setAppointmentMessage(message); toast.success('Appointment request generated') }}><FileText size={17}/>Generate appointment request<ArrowRight size={17}/></button>
+          </div>
+        </section>
+        <aside className="preview-column"><section className="panel preview-panel">
+          <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Appointment preview</h2></div><span className={"preview-status "+(appointmentMessage ? "generated" : "")}><span/>{appointmentMessage ? "Generated" : "Awaiting details"}</span></div>
+          {appointmentMessage ? <><pre className="generated-text">{appointmentMessage}</pre><div className="report-actions"><button className="btn primary" onClick={() => void copy(appointmentMessage)}><Copy size={15}/>Copy appointment request</button></div></> : <div className="empty-preview"><div className="paper-illustration"><div className="paper-top"><Shield size={19}/><span/><span/></div><div className="paper-lines"><i/><i/><i/><i/></div><div className="paper-check"><Check size={17}/></div></div><h3>Your appointment request, ready to share.</h3><p>Select a cadet, fill in the appointment details, and generate the message.</p></div>}
+          <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
+        </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>The cadet name is taken directly from the personnel namelist. Enter the reference number and appointment location in the two text fields.</p></div></div></aside>
+      </div> : activeTab === "bookinout" ? <div className="report-grid">
         <section className="panel form-panel">
           <div className="panel-heading"><span className="section-icon"><Clock3 size={19}/></span><div><h2>Book in and out reports</h2><p>Generate camp booking status messages for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
           <div className="form-section">
