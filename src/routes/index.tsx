@@ -1,12 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { ArrowDownToLine, ArrowRight, ArrowRightLeft, Check, ChevronRight, Clock3, Copy, FileText, Info, MapPin, Plus, Search, Shield, Sun, Trash2, Users, X, Pencil, CheckCheck } from 'lucide-react'
 import { toast } from 'sonner'
-import { getPersonnel, savePerson, deletePerson } from '@/lib/personnel.functions'
+import { getPersonnel, savePerson, deletePerson } from '@/lib/personnel'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
-export const Route = createFileRoute('/')({ component: Home })
 type Person = { id: string; unit: string; rank: string; name: string; platoon: number }
 type Mode = 'single' | 'inclusion' | 'exclusion' | 'entire' | 'platoon1' | 'platoon2'
 const locations = ['AI BUILDING', 'NON-MUSLIM COOKHOUSE', 'MUSLIM COOKHOUSE', 'KHATIB CAMP MAIN GATE', 'SOC GROUND', 'STADIUM', 'FCC', '24 SA TRAINING SHED']
@@ -19,7 +17,7 @@ const modes: { value: Mode; title: string; description: string }[] = [
   { value: 'platoon2', title: 'Platoon 2', description: 'Report movement for Platoon 2' },
 ]
 function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="field"><span>{label}</span>{children}</label> }
-function Home() {
+export default function Home({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState('report')
   const [people, setPeople] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
@@ -82,14 +80,14 @@ function Home() {
   }
   async function submitPerson(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); if (!editing) return; setSaving(true); setPersonError('')
-    try { await savePerson({ data: editing }); await refresh(); setDirty(true); setEditing(null); toast.success('Personnel saved') } catch { setPersonError('Unable to save. Make sure the unit number is unique, then try again.') } finally { setSaving(false) }
+    try { await savePerson(editing); await refresh(); setDirty(true); setEditing(null); toast.success('Personnel saved') } catch { setPersonError('Unable to save. Make sure the unit number is unique, then try again.') } finally { setSaving(false) }
   }
   async function removePerson() {
     if (!removing) return; setSaving(true); setPersonError('')
-    try { await deletePerson({ data: { id: removing.id } }); setSelected(s => s.filter(id => id !== removing.id)); await refresh(); setDirty(true); setRemoving(null); toast.success('Personnel removed') } catch { setPersonError('Unable to remove personnel. Please try again.') } finally { setSaving(false) }
+    try { await deletePerson(removing.id); setSelected(s => s.filter(id => id !== removing.id)); await refresh(); setDirty(true); setRemoving(null); toast.success('Personnel removed') } catch { setPersonError('Unable to remove personnel. Please try again.') } finally { setSaving(false) }
   }
   return <div className="app-shell">
-    <header className="app-header"><div className="header-inner"><a className="brand" href="/"><span className="brand-icon"><Shield size={23} strokeWidth={1.8}/></span><span>86th FAOCC<small>MOVEMENT REPORTS</small></span></a><div className="header-right"><span className="unit-chip"><span/>Unit workspace</span><div className="avatar">86</div></div></div></header>
+    <header className="app-header"><div className="header-inner"><a className="brand" href="/team-movement-reports/"><span className="brand-icon"><Shield size={23} strokeWidth={1.8}/></span><span>86th FAOCC<small>MOVEMENT REPORTS</small></span></a><div className="header-right"><span className="unit-chip"><span/>Unit workspace</span><button type="button" className="btn subtle" onClick={onSignOut}>Sign out</button><div className="avatar">86</div></div></div></header>
     <main className="workspace">
       <div className="breadcrumb">Workspace <ChevronRight size={13}/> <span>{tab === 'report' ? 'Movement reports' : 'Personnel'}</span></div>
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Movement reports<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
