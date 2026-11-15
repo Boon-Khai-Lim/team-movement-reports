@@ -109,8 +109,8 @@ export default function Home() {
             <Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={appointmentTemplate} onChange={e => { setAppointmentTemplate(e.target.value); setAppointmentGreeting("Good " + e.target.value + " Trainers,") }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>
             <Field label="Greeting"><input value={appointmentGreeting} maxLength={200} onChange={e => setAppointmentGreeting(e.target.value)}/></Field>
             <div className="two-col"><Field label="Appointment date"><input type="date" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)}/></Field><Field label="Appointment time"><div className="input-icon"><Clock3 size={16}/><input inputMode="numeric" maxLength={4} placeholder="e.g. 1430" value={appointmentTime} onChange={e => setAppointmentTime(e.target.value.replace(/\D/g,''))}/><span className="input-suffix">HRS</span></div></Field></div>
-            <Field label="Clinic / hospital / location"><input value={appointmentLocation} onChange={e => setAppointmentLocation(e.target.value)} placeholder="Enter clinic, hospital, or location"/></Field>
-            <Field label="Second row information (e.g. TXXXXXXXX)"><input value={appointmentReference} onChange={e => setAppointmentReference(e.target.value)} placeholder="Enter identification / reference number"/></Field>
+            <Field label="Location of Appointment"><input value={appointmentLocation} onChange={e => setAppointmentLocation(e.target.value)} placeholder="Enter location of appointment"/></Field>
+            <Field label="NRIC No. (T1234567A)"><input value={appointmentReference} onChange={e => setAppointmentReference(e.target.value)} placeholder="Enter NRIC number"/></Field>
           </div>
           <div className="form-section">
             <div className="section-label"><span>02</span>Cadet selection</div>
