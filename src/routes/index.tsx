@@ -35,8 +35,10 @@ export default function Home() {
   const [error, setError] = useState('')
   const [date, setDate] = useState('')
   const [activeTab, setActiveTab] = useState<'reports' | 'emart'>('reports')
-  const [emartGreeting, setEmartGreeting] = useState('Good [...] Trainers,')
-  const [emartCadets, setEmartCadets] = useState([{ syn: '', name: '' }, { syn: '', name: '' }])
+  const [emartTemplate, setEmartTemplate] = useState('Morning')
+  const [emartGreeting, setEmartGreeting] = useState('Good Morning Trainers,')
+  const [emartSelected, setEmartSelected] = useState<string[]>([])
+  const [emartSearch, setEmartSearch] = useState('')
   async function refresh() {
     setLoading(true); setLoadError(false)
     try { setPeople(await getPersonnel()) } catch { setLoadError(true) } finally { setLoading(false) }
@@ -46,6 +48,7 @@ export default function Home() {
     const now = new Date(); setDate(now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))
     const period = now.getHours() < 12 ? 'Morning' : now.getHours() < 18 ? 'Afternoon' : 'Evening'
     setTemplate(period); setGreeting(`Good ${period} Trainers,`)
+    setEmartTemplate(period); setEmartGreeting(`Good ${period} Trainers,`)
   }, [])
   const filtered = people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(search.toLowerCase()))
   const needsSelection = mode === 'single' || mode === 'inclusion' || mode === 'exclusion'
@@ -81,21 +84,31 @@ export default function Home() {
       <div className="breadcrumb">Workspace <ChevronRight size={13}/> <span>Movement reports</span></div>
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Movement reports<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
       <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
-      {activeTab === "emart" ? <section className="panel" style={{maxWidth:760,padding:26,marginBottom:36}}>
-        <div className="panel-heading" style={{padding:"0 0 20px"}}><span className="section-icon"><Users size={19}/></span><div><h2>E-Mart Break message</h2><p>Prepare the cadet list announcement for the appointment holders group chat.</p></div></div>
-        <div className="form-section" style={{padding:"22px 0"}}>
-          <Field label="Greeting"><input value={emartGreeting} maxLength={200} onChange={e => setEmartGreeting(e.target.value)} /></Field>
-          <div className="section-label">Cadet details <span>Maximum 5 cadets</span></div>
-          {emartCadets.map((cadet,index) => <div className="two-col" key={index}>
-            <Field label={`Cadet ${index+1} — SYN NO.`}><input placeholder="SYN NO." value={cadet.syn} onChange={e => setEmartCadets(rows => rows.map((row,i) => i===index ? {...row,syn:e.target.value} : row))}/></Field>
-            <Field label="OCT FULL NAME"><input placeholder="Full name" value={cadet.name} onChange={e => setEmartCadets(rows => rows.map((row,i) => i===index ? {...row,name:e.target.value} : row))}/></Field>
-          </div>)}
-          <div style={{display:"flex",gap:10,margin:"12px 0 20px"}}><button type="button" className="btn" disabled={emartCadets.length>=5} onClick={() => setEmartCadets(rows => [...rows,{syn:"",name:""}])}>+ Add cadet</button><button type="button" className="btn" disabled={emartCadets.length<=1} onClick={() => setEmartCadets(rows => rows.slice(0,-1))}>Remove last</button></div>
-          <div className="section-label">Message preview</div>
-          <pre className="generated-text">{emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartCadets.filter(c => c.syn.trim() || c.name.trim()).map(c => (c.syn.trim() || "[SYN NO.]")+" OCT "+(c.name.trim() || "[FULL NAME]")).join("\n\n") || "[SYN NO.] OCT [FULL NAME]")+"\n\nThank you Trainers."}</pre>
-          <button type="button" className="btn primary" onClick={() => void copy(emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartCadets.filter(c => c.syn.trim() || c.name.trim()).map(c => (c.syn.trim() || "[SYN NO.]")+" OCT "+(c.name.trim() || "[FULL NAME]")).join("\n\n") || "[SYN NO.] OCT [FULL NAME]")+"\n\nThank you Trainers.")}><Copy size={15}/>Copy WhatsApp message</button>
-        </div>
-      </section> : <div className="report-grid">
+      {activeTab === "emart" ? <div className="report-grid">
+        <section className="panel form-panel">
+          <div className="panel-heading"><span className="section-icon"><Users size={19}/></span><div><h2>E-Mart Break message</h2><p>Select up to five cadets from the unit namelist.</p></div><span className="step-indicator">01 / 02</span></div>
+          <div className="form-section">
+            <div className="section-label"><span>01</span>Report details</div>
+            <Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={emartTemplate} onChange={e => { setEmartTemplate(e.target.value); setEmartGreeting(`Good ${e.target.value} Trainers,`) }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>
+            <Field label="Greeting"><input required maxLength={200} value={emartGreeting} onChange={e => setEmartGreeting(e.target.value)}/></Field>
+          </div>
+          <div className="form-section">
+            <div className="section-label"><span>02</span>Personnel selection</div>
+            <div className="personnel-picker">
+              <div className="picker-label"><span>Cadets visiting E-Mart<b>{emartSelected.length} / 5 selected</b></span><div><button type="button" onClick={() => setEmartSelected([])}>Clear</button></div></div>
+              <div className="search-input"><Search size={16}/><input aria-label="Search personnel for E-Mart" placeholder="Search by name, unit, or rank…" value={emartSearch} onChange={e => setEmartSearch(e.target.value)}/></div>
+              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(emartSearch.toLowerCase())).length ? people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(emartSearch.toLowerCase())).map(p => <label className={`person-row ${emartSelected.includes(p.id) ? 'checked' : ''}`} key={p.id}><input type="checkbox" checked={emartSelected.includes(p.id)} disabled={!emartSelected.includes(p.id) && emartSelected.length >= 5} onChange={() => setEmartSelected(ids => ids.includes(p.id) ? ids.filter(id => id !== p.id) : ids.length < 5 ? [...ids,p.id] : ids)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
+              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : `${people.length} personnel in your unit`}<span>{emartSelected.length} selected</span></div>
+            </div>
+          </div>
+        </section>
+        <aside className="preview-column"><section className="panel preview-panel">
+          <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Message preview</h2></div><span className="preview-status generated"><span/>Live preview</span></div>
+          <pre className="generated-text">{emartGreeting.trim()+"\\n\\nThe following cadets will be visiting E-Mart during Lunch:\\n\\n"+(people.filter(p => emartSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join("\\n\\n") || "[SYN NO.] OCT [FULL NAME]")+"\\n\\nThank you Trainers."}</pre>
+          <div className="report-actions"><button className="btn primary" disabled={!emartGreeting.trim() || !emartSelected.length || loading || loadError} onClick={() => void copy(emartGreeting.trim()+"\\n\\nThe following cadets will be visiting E-Mart during Lunch:\\n\\n"+people.filter(p => emartSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join("\\n\\n")+"\\n\\nThank you Trainers.")}><Copy size={15}/>Copy WhatsApp message</button></div>
+          <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
+        </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>Select up to five cadets using the same searchable namelist as the movement report.</p></div></div></aside>
+      </div>>
         <section className="panel form-panel"><div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Create movement report</h2><p>Fill in the details of your team’s movement.</p></div><span className="step-indicator">01 / 02</span></div>
           <form onSubmit={generate} onChange={() => setDirty(true)}>
             <div className="form-section"><div className="section-label"><span>01</span>Report details</div><div className="two-col"><Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={template} onChange={e => { setTemplate(e.target.value); setGreeting(`Good ${e.target.value} Trainers,`); setClosing('Thank you Trainers.') }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>{mode !== 'single' && <Field label="Unit designation"><select value={unit} onChange={e => setUnit(e.target.value)}>{['86th FAOCC','LSN','FA','FATA'].map(u => <option key={u}>{u}</option>)}</select></Field>}</div><Field label="Greeting"><input required maxLength={200} value={greeting} onChange={e => setGreeting(e.target.value)}/></Field></div>
