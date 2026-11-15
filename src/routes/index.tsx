@@ -34,11 +34,19 @@ export default function Home() {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
   const [date, setDate] = useState('')
-  const [activeTab, setActiveTab] = useState<'reports' | 'emart'>('reports')
+  const [activeTab, setActiveTab] = useState<'reports' | 'emart' | 'bookinout'>('reports')
   const [emartTemplate, setEmartTemplate] = useState('Morning')
   const [emartGreeting, setEmartGreeting] = useState('Good Morning Trainers,')
   const [emartSelected, setEmartSelected] = useState<string[]>([])
   const [emartSearch, setEmartSearch] = useState('')
+  const [bookType, setBookType] = useState<'in' | 'out'>('in')
+  const [bookTemplate, setBookTemplate] = useState('Morning')
+  const [bookGreeting, setBookGreeting] = useState('Good Morning Trainers,')
+  const [bookSelected, setBookSelected] = useState('')
+  const [bookSearch, setBookSearch] = useState('')
+  const [bookLocation, setBookLocation] = useState('AI BUILDING')
+  const [bookTime, setBookTime] = useState('')
+  const [bookMessage, setBookMessage] = useState('')
   async function refresh() {
     setLoading(true); setLoadError(false)
     try { setPeople(await getPersonnel()) } catch { setLoadError(true) } finally { setLoading(false) }
@@ -83,8 +91,37 @@ export default function Home() {
     <main className="workspace">
       <div className="breadcrumb">Workspace <ChevronRight size={13}/> <span>Movement reports</span></div>
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Movement reports<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
-      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
-      {activeTab === "emart" ? <div className="report-grid">
+      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button><button type="button" className={activeTab === "bookinout" ? "active" : ""} onClick={() => setActiveTab("bookinout")}><Clock3 size={17}/>Book in and out reports</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
+      {activeTab === "bookinout" ? <div className="report-grid">
+        <section className="panel form-panel">
+          <div className="panel-heading"><span className="section-icon"><Clock3 size={19}/></span><div><h2>Book in and out reports</h2><p>Generate camp booking status messages for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
+          <div className="form-section">
+            <div className="section-label"><span>01</span>Report details</div>
+            <Field label="Report type"><select value={bookType} onChange={e => { setBookType(e.target.value as 'in' | 'out'); setBookLocation(e.target.value === 'in' ? 'AI BUILDING' : 'KHATIB CAMP MAIN GATE'); setBookMessage('') }}><option value="in">Book in report</option><option value="out">Book out report</option></select></Field>
+            <div className="two-col">
+              <Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={bookTemplate} onChange={e => { setBookTemplate(e.target.value); setBookGreeting(`Good ${e.target.value} Trainers,`) }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>
+              <Field label="Time"><div className="input-icon"><Clock3 size={16}/><input inputMode="numeric" maxLength={4} placeholder="e.g. 1843" value={bookTime} onChange={e => setBookTime(e.target.value.replace(/\\D/g,''))}/><span className="input-suffix">HRS</span></div></Field>
+            </div>
+            <Field label="Greeting"><input value={bookGreeting} maxLength={200} onChange={e => setBookGreeting(e.target.value)}/></Field>
+            <Field label={bookType === 'in' ? 'Reached location' : 'Departure location'}><input list="locations" value={bookLocation} onChange={e => setBookLocation(e.target.value.toUpperCase())} placeholder={bookType === 'in' ? 'e.g. AI BUILDING' : 'e.g. KHATIB CAMP MAIN GATE'}/></Field>
+          </div>
+          <div className="form-section">
+            <div className="section-label"><span>02</span>Cadet selection</div>
+            <div className="personnel-picker">
+              <div className="picker-label"><span>Cadet<b>{bookSelected ? '1 selected' : 'None selected'}</b></span><button type="button" onClick={() => setBookSelected('')}>Clear</button></div>
+              <div className="search-input"><Search size={16}/><input aria-label="Search cadet" placeholder="Search by name, unit, or rank…" value={bookSearch} onChange={e => setBookSearch(e.target.value)}/></div>
+              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(bookSearch.toLowerCase())).length ? people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(bookSearch.toLowerCase())).map(p => <label className={`person-row ${bookSelected === p.id ? 'checked' : ''}`} key={p.id}><input type="radio" name="bookinout-cadet" checked={bookSelected === p.id} onChange={() => setBookSelected(p.id)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
+              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : `${people.length} personnel in your unit`}<span>{bookSelected ? '1 selected' : '0 selected'}</span></div>
+            </div>
+            <button type="button" className="btn primary generate" disabled={!bookSelected || !bookGreeting.trim() || !/^([01]\\d|2[0-3])[0-5]\\d$/.test(bookTime) || !bookLocation.trim() || loading || loadError} onClick={() => { const p = people.find(person => person.id === bookSelected); if (!p) return; const name = `${p.unit} ${p.rank} ${p.name}`; const sentence = bookType === 'in' ? `${name} has booked into KHATIB CAMP and reached ${bookLocation.trim().toUpperCase()} as at ${bookTime}HRS.` : `${name} has left ${bookLocation.trim().toUpperCase()} and booked out of KHATIB CAMP as at ${bookTime}HRS.`; setBookMessage(`${bookGreeting.trim()}\\n\\n${sentence}\\n\\nThank you Trainers.`); toast.success('Booking report generated') }}><FileText size={17}/>Generate report<ArrowRight size={17}/></button>
+          </div>
+        </section>
+        <aside className="preview-column"><section className="panel preview-panel">
+          <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Report preview</h2></div><span className={`preview-status ${bookMessage ? 'generated' : ''}`}><span/>{bookMessage ? 'Generated' : 'Awaiting details'}</span></div>
+          {bookMessage ? <><pre className="generated-text">{bookMessage}</pre><div className="report-actions"><button className="btn primary" onClick={() => void copy(bookMessage)}><Copy size={15}/>Copy report</button></div></> : <div className="empty-preview"><div className="paper-illustration"><div className="paper-top"><Shield size={19}/><span/><span/></div><div className="paper-lines"><i/><i/><i/><i/></div><div className="paper-check"><Check size={17}/></div></div><h3>Your booking report, ready to share.</h3><p>Select the report type, enter the time and location, then choose a cadet.</p></div>}
+          <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
+        </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>Book in reports record arrival at a location inside camp. Book out reports record departure from the camp gate.</p></div></div></aside>
+      </div> : {activeTab === "emart" ? <div className="report-grid">
         <section className="panel form-panel">
           <div className="panel-heading"><span className="section-icon"><Users size={19}/></span><div><h2>E-Mart Break message</h2><p>Select up to five cadets from the unit namelist.</p></div><span className="step-indicator">01 / 02</span></div>
           <div className="form-section">
