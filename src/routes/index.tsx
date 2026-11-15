@@ -101,7 +101,7 @@ export default function Home() {
   const bookPreview = `${bookGreeting.trim() || '[GREETING]'}\n\n${bookSentence}\n\nThank you Trainers.`
   const movementFrom = origin.trim().toUpperCase() || '[ORIGIN]'
   const movementTo = destination.trim().toUpperCase() || '[DESTINATION]'
-  const movementNames = mode === 'entire' || mode.startsWith('platoon') ? people.filter(p => mode === 'entire' || p.platoon === (mode === 'platoon1' ? 1 : 2)).map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n') : mode === 'exclusion' ? people.filter(p => !selected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n') : selectedPeople.map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n')
+  const movementNames = mode === 'entire' || mode.startsWith('platoon') ? people.filter(p => mode === 'entire' || p.platoon === (mode === 'platoon1' ? 1 : 2)).map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n') : selectedPeople.map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n')
   const movementSubject = mode === 'single' && selectedPeople[0] ? `${selectedPeople[0].unit} ${selectedPeople[0].rank} ${selectedPeople[0].name}` : mode === 'entire' ? '86th FAOCC' : mode === 'platoon1' ? 'PLATOON 1' : mode === 'platoon2' ? 'PLATOON 2' : mode === 'exclusion' ? '86th FAOCC less the following cadets' : 'The following cadets'
   const movementVerb = mode === 'inclusion' ? 'have' : 'has'
   const movementPreview = `${greeting.trim() || '[GREETING]'}\n\n${movementSubject} ${movementVerb} left ${movementFrom} and reached ${movementTo} as at ${time || '[TIME]'}HRS.${needsSelection && mode !== 'single' && movementNames ? `\n\n${movementNames}` : ''}\n\n${closing.trim() || '[CLOSING MESSAGE]'}`
