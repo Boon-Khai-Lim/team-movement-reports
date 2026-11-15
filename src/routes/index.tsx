@@ -121,7 +121,7 @@ export default function Home() {
           {bookMessage ? <><pre className="generated-text">{bookMessage}</pre><div className="report-actions"><button className="btn primary" onClick={() => void copy(bookMessage)}><Copy size={15}/>Copy report</button></div></> : <div className="empty-preview"><div className="paper-illustration"><div className="paper-top"><Shield size={19}/><span/><span/></div><div className="paper-lines"><i/><i/><i/><i/></div><div className="paper-check"><Check size={17}/></div></div><h3>Your booking report, ready to share.</h3><p>Select the report type, enter the time and location, then choose a cadet.</p></div>}
           <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
         </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>Book in reports record arrival at a location inside camp. Book out reports record departure from the camp gate.</p></div></div></aside>
-      </div> : {activeTab === "emart" ? <div className="report-grid">
+      </div> : activeTab === "emart" ? <div className="report-grid">
         <section className="panel form-panel">
           <div className="panel-heading"><span className="section-icon"><Users size={19}/></span><div><h2>E-Mart Break message</h2><p>Select up to five cadets from the unit namelist.</p></div><span className="step-indicator">01 / 02</span></div>
           <div className="form-section">
