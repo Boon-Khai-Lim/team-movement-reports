@@ -34,6 +34,9 @@ export default function Home() {
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
   const [date, setDate] = useState('')
+  const [activeTab, setActiveTab] = useState<'reports' | 'emart'>('reports')
+  const [emartGreeting, setEmartGreeting] = useState('Good [...] Trainers,')
+  const [emartCadets, setEmartCadets] = useState([{ syn: '', name: '' }, { syn: '', name: '' }])
   async function refresh() {
     setLoading(true); setLoadError(false)
     try { setPeople(await getPersonnel()) } catch { setLoadError(true) } finally { setLoading(false) }
@@ -77,8 +80,22 @@ export default function Home() {
     <main className="workspace">
       <div className="breadcrumb">Workspace <ChevronRight size={13}/> <span>Movement reports</span></div>
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Movement reports<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
-      <div className="navigation"><div className="tabs"><span className="active"><FileText size={17}/>Create report</span></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
-      <div className="report-grid">
+      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Create report</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
+      {activeTab === "emart" ? <section className="panel" style={{maxWidth:760,padding:26,marginBottom:36}}>
+        <div className="panel-heading" style={{padding:"0 0 20px"}}><span className="section-icon"><Users size={19}/></span><div><h2>E-Mart Break message</h2><p>Prepare the cadet list announcement for the appointment holders group chat.</p></div></div>
+        <div className="form-section" style={{padding:"22px 0"}}>
+          <Field label="Greeting"><input value={emartGreeting} maxLength={200} onChange={e => setEmartGreeting(e.target.value)} /></Field>
+          <div className="section-label">Cadet details <span>Maximum 5 cadets</span></div>
+          {emartCadets.map((cadet,index) => <div className="two-col" key={index}>
+            <Field label={`Cadet ${index+1} — SYN NO.`}><input placeholder="SYN NO." value={cadet.syn} onChange={e => setEmartCadets(rows => rows.map((row,i) => i===index ? {...row,syn:e.target.value} : row))}/></Field>
+            <Field label="OCT FULL NAME"><input placeholder="Full name" value={cadet.name} onChange={e => setEmartCadets(rows => rows.map((row,i) => i===index ? {...row,name:e.target.value} : row))}/></Field>
+          </div>)}
+          <div style={{display:"flex",gap:10,margin:"12px 0 20px"}}><button type="button" className="btn" disabled={emartCadets.length>=5} onClick={() => setEmartCadets(rows => [...rows,{syn:"",name:""}])}>+ Add cadet</button><button type="button" className="btn" disabled={emartCadets.length<=1} onClick={() => setEmartCadets(rows => rows.slice(0,-1))}>Remove last</button></div>
+          <div className="section-label">Message preview</div>
+          <pre className="generated-text">{emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartCadets.filter(c => c.syn.trim() || c.name.trim()).map(c => (c.syn.trim() || "[SYN NO.]")+" OCT "+(c.name.trim() || "[FULL NAME]")).join("\n\n") || "[SYN NO.] OCT [FULL NAME]")+"\n\nThank you Trainers."}</pre>
+          <button type="button" className="btn primary" onClick={() => void copy(emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartCadets.filter(c => c.syn.trim() || c.name.trim()).map(c => (c.syn.trim() || "[SYN NO.]")+" OCT "+(c.name.trim() || "[FULL NAME]")).join("\n\n") || "[SYN NO.] OCT [FULL NAME]")+"\n\nThank you Trainers.")}><Copy size={15}/>Copy WhatsApp message</button>
+        </div>
+      </section> : <div className="report-grid">
         <section className="panel form-panel"><div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Create movement report</h2><p>Fill in the details of your team’s movement.</p></div><span className="step-indicator">01 / 02</span></div>
           <form onSubmit={generate} onChange={() => setDirty(true)}>
             <div className="form-section"><div className="section-label"><span>01</span>Report details</div><div className="two-col"><Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={template} onChange={e => { setTemplate(e.target.value); setGreeting(`Good ${e.target.value} Trainers,`); setClosing('Thank you Trainers.') }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>{mode !== 'single' && <Field label="Unit designation"><select value={unit} onChange={e => setUnit(e.target.value)}>{['86th FAOCC','LSN','FA','FATA'].map(u => <option key={u}>{u}</option>)}</select></Field>}</div><Field label="Greeting"><input required maxLength={200} value={greeting} onChange={e => setGreeting(e.target.value)}/></Field></div>
@@ -90,7 +107,7 @@ export default function Home() {
           </form>
         </section>
         <aside className="preview-column"><section className="panel preview-panel"><div className="preview-heading"><div><span className="eyebrow">YOUR REPORT</span><h2>Report preview</h2></div><span className={`preview-status ${report ? 'generated' : ''}`}><span/>{report ? dirty ? 'Changes pending' : 'Generated' : 'Awaiting details'}</span></div>{report ? <><div className="route-summary"><span><MapPin size={14}/>{report.origin}</span><ArrowRight size={18}/><span><MapPin size={14}/>{report.destination}</span></div><div className="report-meta"><span><Clock3 size={14}/>{report.time} HRS</span><span><Users size={14}/>{report.count} personnel moving</span></div><pre className="generated-text">{report.text}</pre>{dirty && <p className="pending-note">The details have changed. Generate again to update this report.</p>}<div className="report-actions"><button className="btn primary" onClick={() => void copy(report.text)}><Copy size={15}/>Copy report</button><button className="btn" onClick={download}><ArrowDownToLine size={15}/>Export .txt</button>{report.names && <button className="names-button" onClick={() => void copy(report.names)}><Users size={14}/>Copy names only</button>}</div></> : <div className="empty-preview"><div className="paper-illustration"><div className="paper-top"><Shield size={19}/><span/><span/></div><div className="paper-lines"><i/><i/><i/><i/></div><div className="paper-check"><Check size={17}/></div></div><h3>Your next movement, in writing.</h3><p>Complete the form and generate your report.<br/>It’ll appear here, ready to copy and share.</p><div className="preview-steps"><span><span>1</span>Fill in details</span><ChevronRight size={13}/><span><span>2</span>Generate</span><ChevronRight size={13}/><span><span>3</span>Share</span></div></div>}<div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div></section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>Moving as a full unit? Select <strong>Entire unit</strong> to create your report without selecting personnel individually.</p></div></div><div className="workflow-note"><CheckCheck size={16}/><span>Built for the way your team moves.</span></div></aside>
-      </div>
+      </div>}
       <footer className="footer"><span><Shield size={14}/>86th FAOCC <span className="footer-divider">/</span> Movement reports</span></footer>
     </main>
   </div>
