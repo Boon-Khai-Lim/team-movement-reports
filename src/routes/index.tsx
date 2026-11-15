@@ -104,7 +104,7 @@ export default function Home() {
         </section>
         <aside className="preview-column"><section className="panel preview-panel">
           <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Message preview</h2></div><span className="preview-status generated"><span/>Live preview</span></div>
-          <pre className="generated-text">{emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartSelected.length ? "\n\n"+people.filter(p => emartSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join("\n") : "")+"\n\nThank you Trainers."}</pre>
+          <pre className="generated-text">{emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+(emartSelected.length ? people.filter(p => emartSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join("\n") : "")+"\n\nThank you Trainers."}</pre>
           <div className="report-actions"><button className="btn primary" disabled={!emartGreeting.trim() || !emartSelected.length || loading || loadError} onClick={() => void copy(emartGreeting.trim()+"\n\nThe following cadets will be visiting E-Mart during Lunch:\n\n"+people.filter(p => emartSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join("\n")+"\n\nThank you Trainers.")}><Copy size={15}/>Copy WhatsApp message</button></div>
           <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
         </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>Select up to five cadets using the same searchable namelist as the movement report.</p></div></div></aside>
