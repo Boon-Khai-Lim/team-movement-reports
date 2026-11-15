@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { ArrowDownToLine, ArrowRight, ArrowRightLeft, Check, ChevronRight, Clock3, Copy, FileText, Info, MapPin, Search, Shield, Sun, Users, CheckCheck } from 'lucide-react'
+import { ArrowDownToLine, ArrowRight, ArrowRightLeft, Clock3, Copy, FileText, Info, MapPin, Search, Shield, Sun, Users, CheckCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { getPersonnel } from '@/lib/personnel'
 
@@ -22,7 +22,7 @@ export default function Home() {
   const [loadError, setLoadError] = useState(false)
   const [template, setTemplate] = useState('Morning')
   const [greeting, setGreeting] = useState('Good Morning Trainers,')
-  const [unit, setUnit] = useState('86th FAOCC')
+  const unit = '86th FAOCC'
   const [time, setTime] = useState('')
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
@@ -90,10 +90,6 @@ export default function Home() {
   }
   async function copy(text: string) {
     try { await navigator.clipboard.writeText(text); toast.success('Copied to clipboard') } catch { toast.error('Clipboard unavailable. Select the report text and copy it manually.') }
-  }
-  function download() {
-    if (!report) return
-    const url = URL.createObjectURL(new Blob([report.text], { type: 'text/plain;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = `movement-report-${new Date().toISOString().slice(0,10)}-${report.time}.txt`; a.click(); URL.revokeObjectURL(url); toast.success('Report exported')
   }
   const appointmentPerson = people.find(p => p.id === appointmentSelected)
   const appointmentName = appointmentPerson ? `${appointmentPerson.unit} ${appointmentPerson.rank} ${appointmentPerson.name}` : '[SELECT CADET]'
