@@ -1,37 +1,8 @@
-import { requireSupabase } from './supabase'
+export type Person = { id: string; unit: string; rank: string; name: string; platoon: number }
 
-export type Person = {
-  id: string
-  unit: string
-  rank: string
-  name: string
-  platoon: number
-}
+// Fixed, read-only roster bundled with the website. No database connection is used.
+export const personnel: Person[] = [{"id": "1", "unit": "S101", "rank": "OCT", "name": "HECHEN SIRUI", "platoon": 1}, {"id": "2", "unit": "S102", "rank": "OCT", "name": "TAN YU QIAN", "platoon": 1}, {"id": "3", "unit": "S103", "rank": "OCT", "name": "LU WENKANG", "platoon": 1}, {"id": "4", "unit": "S104", "rank": "OCT", "name": "TOH YIK, TOBY", "platoon": 1}, {"id": "5", "unit": "S105", "rank": "OCT", "name": "XIAO NIANHE", "platoon": 1}, {"id": "6", "unit": "S106", "rank": "OCT", "name": "ADITHYA KARTHIKEYAN SENTHILKUMAR", "platoon": 1}, {"id": "7", "unit": "S107", "rank": "OCT", "name": "DILLON POH KGUAN JOY", "platoon": 1}, {"id": "8", "unit": "S108", "rank": "OCT", "name": "AIDAN ONG WEI SHENG", "platoon": 1}, {"id": "9", "unit": "S109", "rank": "OCT", "name": "CHEN SHENGXU", "platoon": 1}, {"id": "10", "unit": "S201", "rank": "OCT", "name": "JOLOVAN TEO JIA JUN", "platoon": 1}, {"id": "11", "unit": "S202", "rank": "OCT", "name": "PEH KANG JIAN", "platoon": 1}, {"id": "12", "unit": "S203", "rank": "OCT", "name": "AI BOXUAN", "platoon": 1}, {"id": "13", "unit": "S204", "rank": "OCT", "name": "CHEANG CHONG PENG KLIFF", "platoon": 1}, {"id": "14", "unit": "S205", "rank": "OCT", "name": "ANG SHAO XUAN", "platoon": 1}, {"id": "15", "unit": "S206", "rank": "OCT", "name": "CAYDEN NG KEI CHUN", "platoon": 1}, {"id": "16", "unit": "S207", "rank": "OCT", "name": "ADITYA BHATNAGAR", "platoon": 1}, {"id": "17", "unit": "S208", "rank": "OCT", "name": "ELLIOTT JAMES WONG", "platoon": 1}, {"id": "18", "unit": "S301", "rank": "OCT", "name": "TANG KAI KIAT", "platoon": 1}, {"id": "19", "unit": "S302", "rank": "OCT", "name": "ISAAC LIM SZE-YUAN", "platoon": 1}, {"id": "20", "unit": "S303", "rank": "OCT", "name": "LIM BOON KHAI", "platoon": 1}, {"id": "21", "unit": "S304", "rank": "OCT", "name": "TAM YU ZHE", "platoon": 1}, {"id": "22", "unit": "S305", "rank": "OCT", "name": "ELTON BEK WEI JIE", "platoon": 1}, {"id": "23", "unit": "S306", "rank": "OCT", "name": "EVAN QUEK JUN ZHI", "platoon": 1}, {"id": "24", "unit": "S307", "rank": "OCT", "name": "IAN ZACHARY SOON JIEN HAO", "platoon": 1}, {"id": "25", "unit": "S308", "rank": "OCT", "name": "JOSHUA KEE JIAWEI", "platoon": 1}, {"id": "26", "unit": "S309", "rank": "OCT", "name": "KARTHIKEYAN SUNDARESAN", "platoon": 1}, {"id": "27", "unit": "S401", "rank": "LTA", "name": "ELENA CHAN JENG YAN", "platoon": 2}, {"id": "28", "unit": "S402", "rank": "OCT", "name": "ENG CERISE", "platoon": 2}, {"id": "29", "unit": "S403", "rank": "OCT", "name": "ANG KAI YUE STANLEY", "platoon": 2}, {"id": "30", "unit": "S404", "rank": "OCT", "name": "HARISH S/O GANESEN", "platoon": 2}, {"id": "31", "unit": "S405", "rank": "OCT", "name": "HUANG JUNDONG", "platoon": 2}, {"id": "32", "unit": "S406", "rank": "OCT", "name": "CIARAN LIAM CONDRON (KANG JUN YING JIE)", "platoon": 2}, {"id": "33", "unit": "S407", "rank": "OCT", "name": "KHOR KAI CE", "platoon": 2}, {"id": "34", "unit": "S408", "rank": "OCT", "name": "KRISHEL NAGESH DEVATA", "platoon": 2}, {"id": "35", "unit": "S409", "rank": "OCT", "name": "TEH GUANG HUI", "platoon": 2}, {"id": "36", "unit": "S501", "rank": "OCT", "name": "CHAN YI PENG", "platoon": 2}, {"id": "37", "unit": "S502", "rank": "OCT", "name": "HEMANYA CHADHA", "platoon": 2}, {"id": "38", "unit": "S503", "rank": "OCT", "name": "IAN LEE RAY MING", "platoon": 2}, {"id": "39", "unit": "S504", "rank": "OCT", "name": "NG YONG JIN DARREN", "platoon": 2}, {"id": "40", "unit": "S505", "rank": "OCT", "name": "RICK ANG JIA LE", "platoon": 2}, {"id": "41", "unit": "S506", "rank": "OCT", "name": "SAMUEL SHILOH NG", "platoon": 2}, {"id": "42", "unit": "S507", "rank": "OCT", "name": "TAN GEK KWAN", "platoon": 2}, {"id": "43", "unit": "S508", "rank": "OCT", "name": "KEYON NG KAIYANG", "platoon": 2}, {"id": "44", "unit": "S601", "rank": "OCT", "name": "KHOO KAI EN, DONOVAN", "platoon": 2}, {"id": "45", "unit": "S602", "rank": "OCT", "name": "TRISTAN LIANG HENG JUN", "platoon": 2}, {"id": "46", "unit": "S603", "rank": "OCT", "name": "RANADIP SAHA", "platoon": 2}, {"id": "47", "unit": "S604", "rank": "OCT", "name": "LIM XING, JETT", "platoon": 2}, {"id": "48", "unit": "S605", "rank": "OCT", "name": "TRISTON NG JUN KAI", "platoon": 2}, {"id": "49", "unit": "S606", "rank": "OCT", "name": "WU JUN EN, JAYDEN", "platoon": 2}, {"id": "50", "unit": "S607", "rank": "OCT", "name": "YONG SHAN YU ETHAN", "platoon": 2}, {"id": "51", "unit": "S608", "rank": "OCT", "name": "ZHANG SHUYUAN", "platoon": 2}]
 
 export async function getPersonnel(): Promise<Person[]> {
-  const { data, error } = await requireSupabase()
-    .from('personnel')
-    .select('id, unit, rank, name, platoon')
-    .order('unit')
-  if (error) throw error
-  return (data ?? []) as Person[]
-}
-
-export async function savePerson(person: Person): Promise<void> {
-  const cleaned: Person = {
-    ...person,
-    unit: person.unit.trim().toUpperCase(),
-    rank: person.rank.trim().toUpperCase(),
-    name: person.name.trim().toUpperCase(),
-  }
-  if (!cleaned.id || !cleaned.unit || !cleaned.rank || !cleaned.name || ![1, 2].includes(cleaned.platoon)) {
-    throw new Error('Please provide valid personnel details.')
-  }
-  const { error } = await requireSupabase().from('personnel').upsert(cleaned, { onConflict: 'id' })
-  if (error) throw error
-}
-
-export async function deletePerson(id: string): Promise<void> {
-  const { error } = await requireSupabase().from('personnel').delete().eq('id', id)
-  if (error) throw error
+  return personnel
 }
