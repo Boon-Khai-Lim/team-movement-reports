@@ -80,6 +80,7 @@ export default function Home() {
   const sickPreview = sickType === 'RSO'
     ? `${sickGreeting.trim() || '[GREETING]'}\n\n${sickName} is requesting permission to report sick outside due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}:\n\n1. ${sickName}\n\n2. ${sickNric.trim() || '[NRIC NUMBER]'}\n\n3. ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\n\n4. ${sickAllergies.trim().toUpperCase() || '[ALLERGIES TO MEDICATION]'}\n\nThank you Trainers.`
     : `${sickGreeting.trim() || '[GREETING]'}\n\n${sickName} is requesting to report sick due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\n\nThank you Trainers.`
+  const appointmentPerson = people.find(p => p.id === appointmentSelected)
   const appointmentName = appointmentPerson ? `${appointmentPerson.unit} ${appointmentPerson.rank} ${appointmentPerson.name}` : '[SELECT CADET]'
   const appointmentDatePreview = appointmentDate ? appointmentDate.slice(8,10)+appointmentDate.slice(5,7)+appointmentDate.slice(2,4) : '[DDMMYY]'
   const appointmentPreview = `${appointmentGreeting.trim() || '[GREETING]'}\n\n${appointmentName} is requesting approval for an appointment @ ${appointmentLocation.trim() || '[LOCATION]'} on ${appointmentDatePreview}, ${appointmentTime || '[TIME]'} HRS.\n\n1. ${appointmentName}\n2. ${appointmentReference.trim() || '[NRIC NUMBER]'}\n3. APPOINTMENT @ ${appointmentLocation.trim() || '[LOCATION]'}\n\nThank you Trainers.`
