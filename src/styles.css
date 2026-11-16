@@ -246,3 +246,28 @@ input[type=radio],input[type=checkbox] { accent-color:var(--primary); }
   .swap-button { width:30px; }
   .two-col { gap:7px; }
 }
+
+
+/* Match the Report Sick symptoms textarea to the other form controls. */
+.field textarea {
+  display:block;
+  width:100%;
+  min-width:0;
+  min-height:92px;
+  border:1px solid #e6e6e6;
+  background:#fff;
+  border-radius:6px;
+  color:#454545;
+  padding:10px 12px;
+  font:inherit;
+  font-size:11px;
+  line-height:1.55;
+  resize:vertical;
+  outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field textarea::placeholder { color:#828282; font-size:10px; }
+.field textarea:focus { border-color:#767676; box-shadow:0 0 0 3px #6d6d6d12; }
+@media(max-width:720px) {
+  .field textarea { min-height:84px; padding:9px; font-size:10px; }
+}
