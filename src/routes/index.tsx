@@ -46,6 +46,7 @@ export default function Home() {
   const [bookType, setBookType] = useState<'in' | 'out'>('in')
   const [bookTemplate, setBookTemplate] = useState('Morning')
   const [bookGreeting, setBookGreeting] = useState('Good Morning Trainers,')
+  const [bookSelectionMode, setBookSelectionMode] = useState<'single' | 'multiple'>('multiple')
   const [bookSelected, setBookSelected] = useState<string[]>([])
   const [bookSearch, setBookSearch] = useState('')
   const [bookLocation, setBookLocation] = useState('AI BUILDING')
@@ -86,9 +87,15 @@ export default function Home() {
   const appointmentName = appointmentPerson ? `${appointmentPerson.unit} ${appointmentPerson.rank} ${appointmentPerson.name}` : '[SELECT CADET]'
   const appointmentDatePreview = appointmentDate ? appointmentDate.slice(8,10)+appointmentDate.slice(5,7)+appointmentDate.slice(2,4) : '[DDMMYY]'
   const appointmentPreview = `${appointmentGreeting.trim() || '[GREETING]'}\n\n${appointmentName} is requesting approval for an appointment @ ${appointmentLocation.trim() || '[LOCATION]'} on ${appointmentDatePreview}, ${appointmentTime || '[TIME]'} HRS.\n\n1. ${appointmentName}\n2. ${appointmentReference.trim() || '[NRIC NUMBER]'}\n3. APPOINTMENT @ ${appointmentLocation.trim() || '[LOCATION]'}\n\nThank you Trainers.`
-  const bookNames = people.filter(p => bookSelected.includes(p.id)).map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n')
-  const bookSentence = bookType === 'in' ? `The following cadets have booked in to KHATIB CAMP and reached ${bookLocation.trim() || '[REACHED LOCATION]'} as at ${bookTime || '[TIME]'}HRS.` : `The following cadets have booked out of KHATIB CAMP from ${bookLocation.trim() || '[DEPARTURE LOCATION]'} as at ${bookTime || '[TIME]'}HRS.`
-  const bookPreview = `${bookGreeting.trim() || '[GREETING]'}\n\n${bookSentence}${bookNames ? `\n\n${bookNames}` : ''}\n\nThank you Trainers.`
+  const bookPeople = people.filter(p => bookSelected.includes(p.id))
+  const bookNames = bookPeople.map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n')
+  const bookPersonName = bookPeople[0] ? `${bookPeople[0].unit} ${bookPeople[0].rank} ${bookPeople[0].name}` : '[SELECT CADET]'
+  const bookLocationText = bookLocation.trim() || (bookType === 'in' ? '[REACHED LOCATION]' : '[DEPARTURE LOCATION]')
+  const bookTimeText = bookTime || '[TIME]'
+  const bookSentence = bookSelectionMode === 'single'
+    ? bookType === 'in' ? `${bookPersonName} has booked into KHATIB CAMP and reached ${bookLocationText} as at ${bookTimeText}HRS.` : `${bookPersonName} has left ${bookLocationText} and booked out of KHATIB CAMP as at ${bookTimeText}HRS.`
+    : bookType === 'in' ? `The following cadets have booked in to KHATIB CAMP and reached ${bookLocationText} as at ${bookTimeText}HRS.` : `The following cadets have booked out of KHATIB CAMP from ${bookLocationText} as at ${bookTimeText}HRS.`
+  const bookPreview = `${bookGreeting.trim() || '[GREETING]'}\n\n${bookSentence}${bookSelectionMode === 'multiple' && bookNames ? `\n\n${bookNames}` : ''}\n\nThank you Trainers.`
   const movementFrom = origin.trim().toUpperCase() || '[ORIGIN]'
   const movementTo = destination.trim().toUpperCase() || '[DESTINATION]'
   const movementNames = mode === 'entire' || mode.startsWith('platoon') ? people.filter(p => mode === 'entire' || p.platoon === (mode === 'platoon1' ? 1 : 2)).map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n') : selectedPeople.map(p => `${p.unit} ${p.rank} ${p.name}`).join('\n')
@@ -110,42 +117,15 @@ export default function Home() {
           </div>
           <div className="form-section">
             <div className="section-label"><span>02</span>Cadet details</div>
-            <div className="personnel-picker">
-              <div className="picker-label"><span>Cadet selection<b>{sickSelected ? '1 selected' : 'None selected'}</b></span><button type="button" onClick={() => setSickSelected('')}>Clear</button></div>
-              <div className="search-input"><Search size={16}/><input aria-label="Search cadet for report sick" placeholder="Search by name, unit, or rank…" value={sickSearch} onChange={e => setSickSearch(e.target.value)}/></div>
-              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(sickSearch.toLowerCase())).length ? people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(sickSearch.toLowerCase())).map(p => <label className={"person-row "+(sickSelected === p.id ? "checked" : "")} key={p.id}><input type="radio" name="sick-cadet" checked={sickSelected === p.id} onChange={() => setSickSelected(p.id)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
-              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : people.length+" personnel in your unit"}<span>{sickSelected ? '1 selected' : '0 selected'}</span></div>
+            <div className="mode-grid">
+              <label className={"mode-option " + (bookSelectionMode === "single" ? "selected" : "")}><input type="radio" name="book-selection-mode" checked={bookSelectionMode === "single"} onChange={() => { setBookSelectionMode("single"); setBookSelected(ids => ids.slice(0, 1)) }}/><span><strong>Single Cadet</strong><small>Generate a report for one cadet</small></span></label>
+              <label className={"mode-option " + (bookSelectionMode === "multiple" ? "selected" : "")}><input type="radio" name="book-selection-mode" checked={bookSelectionMode === "multiple"} onChange={() => setBookSelectionMode("multiple")}/><span><strong>Multiple Cadets</strong><small>Generate a report for several cadets</small></span></label>
             </div>
-            <Field label="NRIC"><input value={sickNric} onChange={e => setSickNric(e.target.value.toUpperCase())} placeholder="e.g. T1234567A"/></Field>
-            <Field label="Symptoms"><textarea rows={3} value={sickSymptoms} onChange={e => setSickSymptoms(e.target.value)} placeholder="Describe the symptoms"/></Field>
-            <Field label="Further elaboration of symptoms"><textarea rows={3} value={sickSymptomDetails} onChange={e => setSickSymptomDetails(e.target.value)} placeholder="Provide additional details about the symptoms"/></Field>
-            <Field label="Allergies to Medication"><input value={sickAllergies} onChange={e => setSickAllergies(e.target.value)} placeholder="Enter allergies or NIL"/></Field>
-          </div>
-        </section>
-        <aside className="preview-column"><section className="panel preview-panel">
-          <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Report sick preview</h2></div><span className="preview-status generated"><span/>Live preview</span></div>
-          <pre className="generated-text">{sickPreview}</pre>
-          <div className="report-actions"><button className="btn primary" onClick={() => void copy(sickPreview)}><Copy size={15}/>Copy report</button></div>
-          <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
-        </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>RSI is for reporting sick inside camp. RSO includes NRIC, symptoms, and medication allergy details.</p></div></div></aside>
-      </div> : activeTab === "appointment" ? <div className="report-grid">
-        <section className="panel form-panel">
-          <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Requesting for Appointments</h2><p>Prepare an appointment approval request for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
-          <div className="form-section">
-            <div className="section-label"><span>01</span>Appointment details</div>
-            <Field label="Report template"><div className="input-icon"><Sun size={16}/><select value={appointmentTemplate} onChange={e => { setAppointmentTemplate(e.target.value); setAppointmentGreeting("Good " + e.target.value + " Trainers,") }}>{['Morning','Afternoon','Evening'].map(t => <option key={t} value={t}>{t} Report</option>)}</select></div></Field>
-            <Field label="Greeting"><input value={appointmentGreeting} maxLength={200} onChange={e => setAppointmentGreeting(e.target.value)}/></Field>
-            <div className="two-col"><Field label="Appointment date"><input type="date" value={appointmentDate} onChange={e => { const value=e.target.value; setAppointmentDate(value); const now=new Date(); const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`; if(value && value < today) toast.error("Appointment date has already passed. Please choose today or a future date.") }}/></Field><Field label="Appointment time"><div className="input-icon"><Clock3 size={16}/><input inputMode="numeric" maxLength={4} placeholder="e.g. 1430" value={appointmentTime} onChange={e => setAppointmentTime(e.target.value.replace(/\D/g,''))}/><span className="input-suffix">HRS</span></div></Field></div>
-            <Field label="Location of Appointment"><input value={appointmentLocation} onChange={e => setAppointmentLocation(e.target.value)} placeholder="Enter location of appointment"/></Field>
-            <Field label="NRIC No. (T1234567A)"><input value={appointmentReference} onChange={e => setAppointmentReference(e.target.value)} placeholder="Enter NRIC number"/></Field>
-          </div>
-          <div className="form-section">
-            <div className="section-label"><span>02</span>Cadet selection</div>
             <div className="personnel-picker">
-              <div className="picker-label"><span>Cadet requesting appointment<b>{appointmentSelected ? '1 selected' : 'None selected'}</b></span><button type="button" onClick={() => setAppointmentSelected('')}>Clear</button></div>
-              <div className="search-input"><Search size={16}/><input aria-label="Search cadet for appointment" placeholder="Search by name, unit, or rank…" value={appointmentSearch} onChange={e => setAppointmentSearch(e.target.value)}/></div>
-              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(appointmentSearch.toLowerCase())).length ? people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(appointmentSearch.toLowerCase())).map(p => <label className={"person-row "+(appointmentSelected === p.id ? "checked" : "")} key={p.id}><input type="radio" name="appointment-cadet" checked={appointmentSelected === p.id} onChange={() => setAppointmentSelected(p.id)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
-              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : people.length+" personnel in your unit"}<span>{appointmentSelected ? '1 selected' : '0 selected'}</span></div>
+              <div className="picker-label"><span>{bookSelectionMode === "single" ? "Cadet" : "Cadets"}<b>{`${bookSelected.length} selected`}</b></span><div>{bookSelectionMode === "multiple" && <button type="button" onClick={() => setBookSelected(ids => Array.from(new Set([...ids, ...people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(bookSearch.toLowerCase())).map(p => p.id)])))}>Select all shown</button>}<button type="button" onClick={() => setBookSelected([])}>Clear</button></div></div>
+              <div className="search-input"><Search size={16}/><input aria-label="Search cadet" placeholder="Search by name, unit, or rank…" value={bookSearch} onChange={e => setBookSearch(e.target.value)}/></div>
+              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(bookSearch.toLowerCase())).length ? people.filter(p => `${p.unit} ${p.rank} ${p.name}`.toLowerCase().includes(bookSearch.toLowerCase())).map(p => <label className={"person-row " + (bookSelected.includes(p.id) ? "checked" : "")} key={p.id}><input type={bookSelectionMode === "single" ? "radio" : "checkbox"} name={bookSelectionMode === "single" ? "book-single-cadet" : undefined} checked={bookSelected.includes(p.id)} onChange={() => setBookSelected(ids => bookSelectionMode === "single" ? [p.id] : ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id])}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? "No personnel match your search." : "No personnel found in the fixed roster."}</div>}</div>
+              <div className="picker-footer"><Users size={13}/>{loading ? "Loading personnel…" : `${people.length} personnel in your unit`}<span>{`${bookSelected.length} selected`}</span></div>
             </div>
             
           </div>
