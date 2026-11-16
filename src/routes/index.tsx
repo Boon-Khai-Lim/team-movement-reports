@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { ArrowDownToLine, ArrowRight, ArrowRightLeft, Clock3, Copy, FileText, Info, MapPin, Search, Shield, Sun, Users, CheckCheck } from 'lucide-react'
+import { ArrowRight, ArrowRightLeft, Clock3, Copy, FileText, Info, MapPin, Search, Shield, Sun, Users, CheckCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { getPersonnel } from '@/lib/personnel'
 
