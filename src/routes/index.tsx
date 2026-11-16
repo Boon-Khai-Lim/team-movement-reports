@@ -22,7 +22,6 @@ export default function Home() {
   const [loadError, setLoadError] = useState(false)
   const [template, setTemplate] = useState('Morning')
   const [greeting, setGreeting] = useState('Good Morning Trainers,')
-  const unit = '86th FAOCC'
   const [time, setTime] = useState('')
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
