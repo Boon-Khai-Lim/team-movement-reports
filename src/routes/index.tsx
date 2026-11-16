@@ -30,7 +30,14 @@ export default function Home() {
   const [search, setSearch] = useState('')
   const [closing, setClosing] = useState('Thank you Trainers.')
   const [date, setDate] = useState('')
-  const [activeTab, setActiveTab] = useState<'reports' | 'emart' | 'bookinout' | 'appointment'>('reports')
+  const [activeTab, setActiveTab] = useState<'reports' | 'emart' | 'bookinout' | 'appointment' | 'reportsick'>('reports')
+  const [sickType, setSickType] = useState<'RSI' | 'RSO'>('RSI')
+  const [sickGreeting, setSickGreeting] = useState('Good Morning Trainers,')
+  const [sickSelected, setSickSelected] = useState('')
+  const [sickSearch, setSickSearch] = useState('')
+  const [sickNric, setSickNric] = useState('')
+  const [sickSymptoms, setSickSymptoms] = useState('')
+  const [sickAllergies, setSickAllergies] = useState('')
   const [emartTemplate, setEmartTemplate] = useState('Morning')
   const [emartGreeting, setEmartGreeting] = useState('Good Morning Trainers,')
   const [emartSelected, setEmartSelected] = useState<string[]>([])
@@ -68,7 +75,7 @@ export default function Home() {
   async function copy(text: string) {
     try { await navigator.clipboard.writeText(text); toast.success('Copied to clipboard') } catch { toast.error('Clipboard unavailable. Select the report text and copy it manually.') }
   }
-  const appointmentPerson = people.find(p => p.id === appointmentSelected)
+  const sickPerson = people.find(p => p.id === sickSelected)\n  const sickName = sickPerson ? `${sickPerson.unit} ${sickPerson.rank} ${sickPerson.name}` : '[SELECT CADET]'\n  const sickPreview = sickType === 'RSO' ? `${sickGreeting.trim() || '[GREETING]'}\\n\\n${sickName} is requesting permission to report sick outside due to \\n${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}: \\n\\n1. ${sickName}\\n\\n2. ${sickNric.trim() || '[NRIC NUMBER]'}\\n\\n3. ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\\n\\n4. ${sickAllergies.trim().toUpperCase() || '[ALLERGIES TO MEDICATION]'}\\n\\nThank you Trainers.` : `${sickGreeting.trim() || '[GREETING]'}\\n\\n${sickName} is requesting to report sick due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\\n\\nThank you Trainers.`\n  const appointmentPerson = people.find(p => p.id === appointmentSelected)
   const appointmentName = appointmentPerson ? `${appointmentPerson.unit} ${appointmentPerson.rank} ${appointmentPerson.name}` : '[SELECT CADET]'
   const appointmentDatePreview = appointmentDate ? appointmentDate.slice(8,10)+appointmentDate.slice(5,7)+appointmentDate.slice(2,4) : '[DDMMYY]'
   const appointmentPreview = `${appointmentGreeting.trim() || '[GREETING]'}\n\n${appointmentName} is requesting approval for an appointment @ ${appointmentLocation.trim() || '[LOCATION]'} on ${appointmentDatePreview}, ${appointmentTime || '[TIME]'} HRS.\n\n1. ${appointmentName}\n2. ${appointmentReference.trim() || '[NRIC NUMBER]'}\n3. APPOINTMENT @ ${appointmentLocation.trim() || '[LOCATION]'}\n\nThank you Trainers.`
@@ -85,8 +92,35 @@ export default function Home() {
     <header className="app-header"><div className="header-inner"><a className="brand" href="/team-movement-reports/"><span className="brand-icon"><Shield size={23} strokeWidth={1.8}/></span><span>86th FAOCC<small>REPORT GENERATOR</small></span></a><div className="header-right"><span className="unit-chip"><span/>Unit workspace</span><div className="avatar">86</div></div></div></header>
     <main className="workspace">
       <div className="page-heading"><div><div className="eyebrow">PERSONNEL & OPERATIONS</div><h1>Report Generator<span>.</span></h1><p>Keep your team in step. Create clear, consistent movement reports.</p></div><div className="date-display"><Clock3 size={15}/><span>{date || 'Unit workspace'}</span></div></div>
-      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Movement Report</button><button type="button" className={activeTab === "bookinout" ? "active" : ""} onClick={() => setActiveTab("bookinout")}><Clock3 size={17}/>Book in and out reports</button><button type="button" className={activeTab === "appointment" ? "active" : ""} onClick={() => setActiveTab("appointment")}><FileText size={17}/>Appointment</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
-      {activeTab === "appointment" ? <div className="report-grid">
+      <div className="navigation"><div className="tabs"><button type="button" className={activeTab === "reports" ? "active" : ""} onClick={() => setActiveTab("reports")}><FileText size={17}/>Movement Report</button><button type="button" className={activeTab === "bookinout" ? "active" : ""} onClick={() => setActiveTab("bookinout")}><Clock3 size={17}/>Book in and out reports</button><button type="button" className={activeTab === "appointment" ? "active" : ""} onClick={() => setActiveTab("appointment")}><FileText size={17}/>Appointment</button><button type="button" className={activeTab === "reportsick" ? "active" : ""} onClick={() => setActiveTab("reportsick")}><FileText size={17}/>Report Sick</button><button type="button" className={activeTab === "emart" ? "active" : ""} onClick={() => setActiveTab("emart")}><Users size={17}/>E-Mart message</button></div><span className="workspace-note"><span className="status-dot"/>Ready for movement</span></div>
+      {activeTab === "reportsick" ? <div className="report-grid">
+        <section className="panel form-panel">
+          <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Report Sick</h2><p>Prepare an RSI or RSO request for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
+          <div className="form-section">
+            <div className="section-label"><span>01</span>Report type</div>
+            <Field label="RSI / RSO"><select value={sickType} onChange={e => setSickType(e.target.value as 'RSI' | 'RSO')}><option value="RSI">RSI — Report Sick Inside</option><option value="RSO">RSO — Report Sick Outside</option></select></Field>
+            <Field label="Greeting"><input value={sickGreeting} maxLength={200} onChange={e => setSickGreeting(e.target.value)}/></Field>
+          </div>
+          <div className="form-section">
+            <div className="section-label"><span>02</span>Cadet details</div>
+            <div className="personnel-picker">
+              <div className="picker-label"><span>Cadet selection<b>{sickSelected ? '1 selected' : 'None selected'}</b></span><button type="button" onClick={() => setSickSelected('')}>Clear</button></div>
+              <div className="search-input"><Search size={16}/><input aria-label="Search cadet for report sick" placeholder="Search by name, unit, or rank…" value={sickSearch} onChange={e => setSickSearch(e.target.value)}/></div>
+              <div className="personnel-list">{loading ? <div className="loading-rows">{[1,2,3].map(i => <div key={i} className="skeleton-row"/>)}</div> : loadError ? <div className="list-message">Unable to load personnel. <button type="button" onClick={() => void refresh()}>Try again</button></div> : people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(sickSearch.toLowerCase())).length ? people.filter(p => (p.unit+" "+p.rank+" "+p.name).toLowerCase().includes(sickSearch.toLowerCase())).map(p => <label className={"person-row "+(sickSelected === p.id ? "checked" : "")} key={p.id}><input type="radio" name="sick-cadet" checked={sickSelected === p.id} onChange={() => setSickSelected(p.id)}/><span className="unit-number">{p.unit}</span><span className="rank">{p.rank}</span><span className="person-name">{p.name}</span></label>) : <div className="list-message">{people.length ? 'No personnel match your search.' : 'No personnel found in the fixed roster.'}</div>}</div>
+              <div className="picker-footer"><Users size={13}/>{loading ? 'Loading personnel…' : people.length+" personnel in your unit"}<span>{sickSelected ? '1 selected' : '0 selected'}</span></div>
+            </div>
+            <Field label="NRIC"><input value={sickNric} onChange={e => setSickNric(e.target.value.toUpperCase())} placeholder="e.g. T0772150H"/></Field>
+            <Field label="Symptoms"><textarea rows={3} value={sickSymptoms} onChange={e => setSickSymptoms(e.target.value)} placeholder="Describe the symptoms"/></Field>
+            {sickType === 'RSO' && <Field label="Allergies to Medication"><input value={sickAllergies} onChange={e => setSickAllergies(e.target.value)} placeholder="Enter allergies or NIL"/></Field>}
+          </div>
+        </section>
+        <aside className="preview-column"><section className="panel preview-panel">
+          <div className="preview-heading"><div><span className="eyebrow">YOUR MESSAGE</span><h2>Report sick preview</h2></div><span className="preview-status generated"><span/>Live preview</span></div>
+          <pre className="generated-text">{sickPreview}</pre>
+          <div className="report-actions"><button className="btn primary" onClick={() => void copy(sickPreview)}><Copy size={15}/>Copy report</button></div>
+          <div className="preview-bottom"><Shield size={14}/>Consistent reporting. Every movement.</div>
+        </section><div className="tip-card"><span className="tip-icon"><Info size={18}/></span><div><h3>A quick tip</h3><p>RSI is for reporting sick inside camp. RSO includes NRIC, symptoms, and medication allergy details.</p></div></div></aside>
+      </div> : activeTab === "appointment" ? <div className="report-grid">
         <section className="panel form-panel">
           <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Requesting for Appointments</h2><p>Prepare an appointment approval request for trainers.</p></div><span className="step-indicator">01 / 02</span></div>
           <div className="form-section">
