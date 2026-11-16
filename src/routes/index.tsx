@@ -99,7 +99,6 @@ export default function Home() {
           <div className="form-section">
             <div className="section-label"><span>01</span>Report type</div>
             <Field label="RSI / RSO"><select value={sickType} onChange={e => setSickType(e.target.value as 'RSI' | 'RSO')}><option value="RSI">RSI — Report Sick Inside</option><option value="RSO">RSO — Report Sick Outside</option></select></Field>
-            <Field label="Greeting"><input value={sickGreeting} maxLength={200} onChange={e => setSickGreeting(e.target.value)}/></Field>
           </div>
           <div className="form-section">
             <div className="section-label"><span>02</span>Cadet details</div>
@@ -111,7 +110,8 @@ export default function Home() {
             </div>
             <Field label="NRIC"><input value={sickNric} onChange={e => setSickNric(e.target.value.toUpperCase())} placeholder="e.g. T0772150H"/></Field>
             <Field label="Symptoms"><textarea rows={3} value={sickSymptoms} onChange={e => setSickSymptoms(e.target.value)} placeholder="Describe the symptoms"/></Field>
-            {sickType === 'RSO' && <Field label="Allergies to Medication"><input value={sickAllergies} onChange={e => setSickAllergies(e.target.value)} placeholder="Enter allergies or NIL"/></Field>}
+            <Field label="Allergies to Medication"><input value={sickAllergies} onChange={e => setSickAllergies(e.target.value)} placeholder="Enter allergies or NIL"/></Field>
+            <Field label="Greeting"><input value={sickGreeting} maxLength={200} onChange={e => setSickGreeting(e.target.value)}/></Field>
           </div>
         </section>
         <aside className="preview-column"><section className="panel preview-panel">
