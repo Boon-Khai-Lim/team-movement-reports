@@ -37,6 +37,7 @@ export default function Home() {
   const [sickSearch, setSickSearch] = useState('')
   const [sickNric, setSickNric] = useState('')
   const [sickSymptoms, setSickSymptoms] = useState('')
+  const [sickSymptomDetails, setSickSymptomDetails] = useState('')
   const [sickAllergies, setSickAllergies] = useState('')
   const [emartTemplate, setEmartTemplate] = useState('Morning')
   const [emartGreeting, setEmartGreeting] = useState('Good Morning Trainers,')
@@ -79,7 +80,7 @@ export default function Home() {
   const sickPerson = people.find(p => p.id === sickSelected)
   const sickName = sickPerson ? `${sickPerson.unit} ${sickPerson.rank} ${sickPerson.name}` : '[SELECT CADET]'
   const sickPreview = sickType === 'RSO'
-    ? `${sickGreeting.trim() || '[GREETING]'}\n\n${sickName} is requesting permission to report sick outside due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}:\n\n1. ${sickName}\n\n2. ${sickNric.trim() || '[NRIC NUMBER]'}\n\n3. ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\n\n4. ${sickAllergies.trim().toUpperCase() || '[ALLERGIES TO MEDICATION]'}\n\nThank you Trainers.`
+    ? `${sickGreeting.trim() || '[GREETING]'}\n\n${sickName} is requesting permission to report sick outside due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}:\n\n1. ${sickName}\n\n2. ${sickNric.trim() || '[NRIC NUMBER]'}\n\n3. ${sickSymptomDetails.trim().toUpperCase() || '[FURTHER ELABORATION OF SYMPTOMS]'}\n\n4. ${sickAllergies.trim().toUpperCase() || '[ALLERGIES TO MEDICATION]'}\n\nThank you Trainers.`
     : `${sickGreeting.trim() || '[GREETING]'}\n\n${sickName} is requesting to report sick due to ${sickSymptoms.trim().toUpperCase() || '[SYMPTOMS]'}\n\nThank you Trainers.`
   const appointmentPerson = people.find(p => p.id === appointmentSelected)
   const appointmentName = appointmentPerson ? `${appointmentPerson.unit} ${appointmentPerson.rank} ${appointmentPerson.name}` : '[SELECT CADET]'
@@ -117,8 +118,8 @@ export default function Home() {
             </div>
             <Field label="NRIC"><input value={sickNric} onChange={e => setSickNric(e.target.value.toUpperCase())} placeholder="e.g. T1234567A"/></Field>
             <Field label="Symptoms"><textarea rows={3} value={sickSymptoms} onChange={e => setSickSymptoms(e.target.value)} placeholder="Describe the symptoms"/></Field>
+            <Field label="Further elaboration of symptoms"><textarea rows={3} value={sickSymptomDetails} onChange={e => setSickSymptomDetails(e.target.value)} placeholder="Provide additional details about the symptoms"/></Field>
             <Field label="Allergies to Medication"><input value={sickAllergies} onChange={e => setSickAllergies(e.target.value)} placeholder="Enter allergies or NIL"/></Field>
-            <Field label="Greeting"><input value={sickGreeting} maxLength={200} onChange={e => setSickGreeting(e.target.value)}/></Field>
           </div>
         </section>
         <aside className="preview-column"><section className="panel preview-panel">
